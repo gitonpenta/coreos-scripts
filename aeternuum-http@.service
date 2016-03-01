@@ -1,0 +1,15 @@
+[Unit]
+Description=Aeternuum Django
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill aeternuum-%i
+ExecStartPre=-/usr/bin/docker rm aeternuum-%i
+ExecStartPre=/usr/bin/bash -c "/usr/bin/docker login -u aeternuum -p penthaunina -e alessandro.amirante@unina.it && /usr/bin/docker pull aeternuum/aeternuum:latest"
+ExecStart=/usr/bin/bash -c "DB=aeternuum.cuylxin0wu5q.eu-central-1.rds.amazonaws.com && /usr/bin/docker run --rm --name aeternuum-%i -e AETERNUUM_DATABASE=$DB -p 8000:8000 -p 8022:22 aeternuum/aeternuum:latest"
+ExecStartPost=/usr/bin/bash -c "/usr/bin/sleep 2 && /usr/bin/docker cp /home/core/start-container.sh aeternuum-%i:/tmp/start-container.sh"
+ExecStartPost=/usr/bin/bash -c "/usr/bin/sleep 2 && /usr/bin/docker exec -d aeternuum-%i /tmp/start-container.sh"
+ExecStop=/usr/bin/docker stop aeternuum-%i
+TimeoutStartSec=30m
+
+[X-Fleet]
+Conflicts=aeternuum-http@*.service

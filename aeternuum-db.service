@@ -1,0 +1,11 @@
+[Unit]
+Description=Aeternuum DB
+
+[Service]
+ExecStartPre=-/usr/bin/docker kill aeternuum-db
+ExecStartPre=-/usr/bin/docker rm aeternuum-db
+ExecStartPre=-/usr/bin/etcdctl rm AetDB
+ExecStart=/usr/bin/docker run --rm --name aeternuum-db -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_USER=postgres -p 5432:5432 postgres
+ExecStartPost=/usr/bin/bash -c '/usr/bin/sleep 2 && /usr/bin/etcdctl mk AetDB "$(/usr/bin/docker inspect aeternuum-db | grep IPAddress | grep -v Secondary | head -1 | awk \'{print $2}\' | tr -d \',\"\')"'
+ExecStop=/usr/bin/docker stop aeternuum-db
+ExecStop=-/usr/bin/bash -c "/usr/bin/sleep 2 && /usr/bin/etcdctl rm AetDB"
