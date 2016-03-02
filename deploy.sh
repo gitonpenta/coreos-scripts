@@ -5,6 +5,7 @@ for i in {1..3}; do
   fleetctl destroy aeternuum-http@$i.service
   echo "...aeternuum-$i destroyed."
 done
+echo "Waiting..."
 sleep 20
 for i in {1..3}; do
   echo "Deploying aeternuum-$i..."
